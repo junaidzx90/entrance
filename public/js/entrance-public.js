@@ -14,8 +14,18 @@ jQuery(function( $ ) {
 			beforeSend: () => {
 				$('.loading2').css('visibility','visible')
 			},
-			success: function () {
-				$('.loading2').css('visibility','hidden')
+			dataType: "json",
+			success: function (response) {
+				$('.loading2').css('visibility', 'hidden')
+
+				if (response.success) {
+					location.href = response;
+				}
+				
+				if (response.error) {
+					window.history.pushState('', '', '?error='+response.error);
+					location.reload();
+				}
 			}
 		})
 	});

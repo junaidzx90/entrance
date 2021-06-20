@@ -18,6 +18,13 @@
         <div class="entrance_content">
             <div class="ent-form-contents">
                 <?php
+                $res = $this->entrance_login_access_by_form();
+                if(!empty($res)){
+                    echo '<div class="errors">';
+                    echo '<span class="error-icon">⊘</span>';
+                    echo '<p>'.$res.'</p>';
+                    echo '</div>';
+                }
                 if(isset($_REQUEST['error'])){
                     echo '<div class="errors">';
                     echo '<span class="error-icon">⊘</span>';
@@ -43,14 +50,14 @@
                     <h1 class="loginheading">Login</h1>
                     <form action="" class="entranceform" method="post">
                         <div class="ent-form-g">
-                            <input type="text" placeholder="Name" name="" class="">
+                            <input type="text" placeholder="Name" name="username" value="<?php echo (isset($_COOKIE['username'])?$_COOKIE['username']:'') ?>">
                         </div>
                         <div class="ent-form-g">
-                            <input type="password" placeholder="Password" name="" class="">
+                            <input type="password" placeholder="Password" name="password" value="<?php echo (isset($_COOKIE['password'])?$_COOKIE['password']:'') ?>">
                         </div>
                         <div class="ent-form-g stay-login">
                             <label for="stay-login">
-                                <input type="radio" name="stay-login" id="stay-login">
+                                <input type="radio" name="stay_login" id="stay-login">
                                 Stay Logged In
                             </label>
                         </div>

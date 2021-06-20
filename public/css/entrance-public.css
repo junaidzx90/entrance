@@ -2,7 +2,7 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
-
+ @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap');
 #entranse_wrap {
     width: 100%;
     background: linear-gradient(1deg, #E5547E, #f27876);
@@ -42,10 +42,14 @@ span.beforeline,span.afterline {
 }
 span.text {
     margin: 8px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 h1.loginheading {
     margin: 0;
     font-size: 33px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .ent-body form {
     margin-top: 20px;
@@ -60,6 +64,10 @@ h1.loginheading {
 .ent-form-g select:focus,
 .ent-form-g input[type='tel'],
 .ent-form-g input[type='tel']:focus,
+.ent-form-g input[type='number'],
+.ent-form-g input[type='number']:focus,
+.ent-form-g input[type='date'],
+.ent-form-g input[type='date']:focus,
 .ent-form-g input[type='email'],
 .ent-form-g input[type='email']:focus,
 .ent-form-g input[type='password'],
@@ -84,15 +92,21 @@ h1.loginheading {
     margin: 0;
     padding: 0px 10px;
     font-size: 16px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 #register-form #yourdetails .fcontent{
     display: flex;
     justify-content: space-between;
     width: 100%;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 #register-form #yourdetails .fcontent .reg-form-inp{
     width: 48%;
     display: inline-block;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .ent-form-g.stay-login {
     justify-content: flex-start;
@@ -103,6 +117,8 @@ h1.loginheading {
     font-size: 16px;
     letter-spacing: 1.6px;
     display: flex;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 
 .ent-form-g.stay-login input {
@@ -115,6 +131,10 @@ h1.loginheading {
 .ent-form-g select:focus,
 .ent-form-g input[type='tel'],
 .ent-form-g input[type='tel']:focus,
+.ent-form-g input[type='number'],
+.ent-form-g input[type='number']:focus,
+.ent-form-g input[type='date'],
+.ent-form-g input[type='date']:focus,
 .ent-form-g input[type='email'],
 .ent-form-g input[type='email']:focus,
 .ent-form-g input[type='password'],
@@ -133,6 +153,8 @@ h1.loginheading {
 .ent-form-g input[type='password']:active{
     outline: unset;
     border: 1px solid #ddd;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 button.nxtcss,
 button.login-btn {
@@ -144,11 +166,15 @@ button.login-btn {
 , #E5547E, #f27876);
     border: none;
     outline: none;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .nxtcss{
     width: fit-content !important;
     padding-left: 60px !important;
     padding-right: 60px !important;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 button.nxtcss,:focus,button.nxtcss,:active,
 button.login-btn:focus,button.login-btn:active{
@@ -157,18 +183,26 @@ button.login-btn:focus,button.login-btn:active{
 .sc-loginbtns {
     display: flex;
     justify-content: space-between;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .ent-already-link a {
     color: #fff;
     border-bottom: 2px solid;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .g-signin2, .fb-login-button {
     display: inline-block;
     width: 40%;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .errors {
     display: flex;
     margin-bottom: 11px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .errors .error-icon{
     color: #f07278;
@@ -181,6 +215,8 @@ button.login-btn:focus,button.login-btn:active{
     line-height: 1.2;
     font-size: 16px;
     color: #f07278;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 
 .reg-error .errors p {
@@ -199,12 +235,16 @@ button.login-btn:focus,button.login-btn:active{
     padding-left: 5px;
     padding-right: 5px;
     margin-bottom: -2px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .ent-register-body {
     padding-left: 40px;
     padding-right: 40px;
     padding-top: 0px;
     padding-bottom: 20px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .ent-register-header {
     width: 58%;
@@ -217,18 +257,23 @@ button.login-btn:focus,button.login-btn:active{
     position: relative;
     background: #FBFAF9 !important;
     padding: 0px !important;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 #form-tabs button {
     flex: 3.3;
     border-style: none;
     border: 0px;
     font-size: 16px;
+    padding: 0px;
     height: 50px;
     outline: 0px;
     color: #a5a5a5;
     background: transparent;
     box-shadow: none;
     margin-bottom: -1px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 
 #form-tabs button:active,#form-tabs button:focus{
@@ -248,14 +293,20 @@ span.pets_breadcrumbs {
     height: 36px;
     font-size: 14px;
     font-weight: 600;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .backbtn{
     display: none;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 span.badded{
     color: #ffb2b9;
     margin-left: 8px;
     cursor: pointer;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 .badded.active{
     color: #f17477;
@@ -271,6 +322,8 @@ button.add_dog,button.skipbtn {
     text-decoration: underline;
     padding: 0;
     margin-bottom: 15px;
+    font-family: 'Raleway' !important;
+    letter-spacing: 1.1px;
 }
 button.add_dog:focus,button.skipbtn:focus{
     border: none;

@@ -88,6 +88,36 @@ class Entrance_Public {
 
 	}
 	
+	function entrance_login_access($user_id){
+		clean_user_cache($user_id);
+		wp_clear_auth_cookie();
+		wp_set_current_user($user_id);
+		wp_set_auth_cookie($user_id, true, false);
+		
+		$user = get_user_by('id', $user_id);
+		update_user_caches($user);
+	}
+
+	function entrance_social_user_store($email,$fname,$lname = ''){
+		$password = rand(1,10);
+		
+		$user = '';
+
+		if(is_email($email)){
+			$user = get_user_by( 'email', $email );
+		}
+
+		if(!$user){
+			$user_id = wc_create_new_customer( $email, $fname, $password );
+
+			update_user_meta( $user_id, "shipping_first_name", $fname );
+			update_user_meta( $user_id, "shipping_last_name", $lname );
+		}
+
+		$this->entrance_login_access($user->ID);
+		return true;
+	}
+
 	function entrance_social_login($btn){
 		global $google_client,$facebook;
 		$homeurl = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
@@ -117,6 +147,7 @@ class Entrance_Public {
 		if(isset($_SESSION['faccess_token'])){
 			$_SESSION['user_first_name'] = $fuser->getField('name');
 			$_SESSION['user_email'] =  $fuser->getField('email');
+			$this->entrance_social_user_store($_SESSION['user_email'], $_SESSION['user_first_name']);
 			header("Location:".$homeurl);
 		}
 
@@ -142,6 +173,7 @@ class Entrance_Public {
 				if(!empty($userData['email'])){
 					$_SESSION['user_email'] = $userData['email'];
 				}
+				$this->entrance_social_user_store($_SESSION['user_email'], $_SESSION['user_first_name'], $_SESSION['user_last_name']);
 			}
 		}
 
@@ -157,13 +189,23 @@ class Entrance_Public {
 	 * Entrance Login page view functionality
 	 */
 	function entrance_login_callback_function(){
-		if(!is_user_logged_in(  ) || !isset($_SESSION['access_token']) || !isset($_SESSION['faccess_token'])){
-			ob_start();
-			// Include front view
-			require_once plugin_dir_path( __FILE__ )."partials/entrance_login_page.php";
-			$output = ob_get_contents();
-			ob_get_clean();
-			return $output;
+		if(!is_user_logged_in(  )){
+			if(!isset($_SESSION['access_token'])){
+				if(!isset($_SESSION['faccess_token'])){
+					ob_start();
+					// Include front view
+					require_once plugin_dir_path( __FILE__ )."partials/entrance_login_page.php";
+					$output = ob_get_contents();
+					ob_get_clean();
+					return $output;
+				}else{
+					print_r("You are already Logged in!");
+				}
+			}else{
+				print_r("You are already Logged in!");
+			}
+		}else{
+			print_r("You are already Logged in!");
 		}
 	}
 
@@ -171,13 +213,60 @@ class Entrance_Public {
 	 * Entrance Register page view functionality
 	 */
 	function entrance_register_callback_function(){
-		if(!is_user_logged_in(  ) || !isset($_SESSION['access_token']) || !isset($_SESSION['faccess_token'])){
-			ob_start();
-			// Include front view
-			require_once plugin_dir_path( __FILE__ )."partials/entrance_register_page.php";
-			$output = ob_get_contents();
-			ob_get_clean();
-			return $output;
+		if(!is_user_logged_in(  )){
+			if(!isset($_SESSION['access_token'])){
+				if(!isset($_SESSION['faccess_token'])){
+					ob_start();
+					// Include front view
+					require_once plugin_dir_path( __FILE__ )."partials/entrance_register_page.php";
+					$output = ob_get_contents();
+					ob_get_clean();
+					return $output;
+				}else{
+					print_r("You are already Logged in!");
+				}
+			}else{
+				print_r("You are already Logged in!");
+			}
+		}else{
+			print_r("You are already Logged in!");
+		}
+	}
+
+	function entrance_login_access_by_form(){
+		// check the user's login with their password.
+		if(isset($_POST['login_btn'])){
+			if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['password']) && !empty($_POST['password'])){
+				$redirect = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
+
+				$username = sanitize_text_field( $_POST['username'] );
+				$password = sanitize_text_field( $_POST['password'] );
+				$user = '';
+
+				if(is_email($username)){
+					$user = get_user_by( 'email', $username );
+				}else{
+					$user = get_user_by( 'login', $username );
+				}
+
+				if ( wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+
+					if(isset($_POST['stay_login'])){
+						setcookie('username', $username, time() + (10 * 365 * 24 * 60 * 60), '/');
+						setcookie('password', $password, time() + (10 * 365 * 24 * 60 * 60), '/');
+					}
+
+					$this->entrance_login_access($user->ID);
+					if(is_user_logged_in(  )){
+						wp_safe_redirect( $redirect );
+						exit;
+					}
+				}else{
+					return 'Invalid credentials.';
+				}
+			}else{
+				return 'Invalid credentials.';
+			}
 		}
 	}
 
@@ -186,11 +275,19 @@ class Entrance_Public {
 			die();
 		}
 		if(isset($_POST)){
+
+			if(get_user_by( 'email', $_POST['email'])){
+				echo wp_json_encode( array('error' => "This user already exist!") );
+				die;
+			}
+
 			$yourdetails = [];
 			$shippingaddr = [];
+			
 			$pet1 = [];
 			$pet2 = [];
 			$pet3 = [];
+
 			$data = $_POST;
 
 			// yourdetails
@@ -281,9 +378,55 @@ class Entrance_Public {
 				$shippingaddr['addr_type'] = sanitize_text_field($data['addr_type']);
 			}
 
+			$pets = [$pet1,$pet2,$pet3];
+	
+			if(!empty($yourdetails)){
+				$emailaddr = explode("@", $yourdetails['email'], 2);
+                $username = $emailaddr[0];
 
+				if(!empty($yourdetails['email']) && !empty($yourdetails['password'])){
+					$user_id = wc_create_new_customer( strtolower($yourdetails['email']), $username, $yourdetails['password'] );
+
+					update_user_meta( $user_id, "shipping_first_name", $yourdetails['firstname'] );
+					update_user_meta( $user_id, "shipping_last_name", $yourdetails['lastname'] );
+					update_user_meta( $user_id, "billing_phone", $yourdetails['phone'] );
+					update_user_meta( $user_id, "shipping_country", $yourdetails['country'] );
+
+					if(!empty($shippingaddr)){
+						update_user_meta( $user_id, "shipping_address_1", $shippingaddr['addr_1'] );
+						update_user_meta( $user_id, "shipping_address_2", $shippingaddr['addr_2'] );
+						update_user_meta( $user_id, "address_type", $shippingaddr['addr_type'] );
+						update_user_meta( $user_id, "shipping_city", $shippingaddr['city'] );
+						update_user_meta( $user_id, "shipping_postcode", $shippingaddr['pincode'] );
+					}
+
+					if(!empty($pets)){
+						$redirect = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
+
+						foreach($pets as $pet){
+							global $wpdb;
+							$wpdb->insert($wpdb->prefix.'entrance_pets',array(
+								'user_id' => $user_id, 
+								'pet_name' => $pet['pet_name'],
+								'pet_age' => $pet['petage'],
+								'pet_birthday' => $pet['birthday'],
+								'pet_breed' => $pet['breed'],
+								'pet_gender' => $pet['gender']
+							),array('%d','%s','%d','%s','%s','%s'));
+						}
+					}
+
+					if(!is_wp_error( $wpdb )){
+						$this->entrance_login_access($user_id);
+						echo wp_json_encode( array('success' => $redirect) );
+						die;
+					}
+					die;
+				}
+				die;
+			}
+			die;
 		}
-		var_dump($pet1);
 		die;
 	}
 }

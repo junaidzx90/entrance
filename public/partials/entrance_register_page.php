@@ -1,5 +1,5 @@
 <?php
-
+global $wpdb;
 /**
  * Provide a public-facing view for the plugin
  *
@@ -64,17 +64,17 @@
                             <div class="fcontent">
                                 <!-- Fname -->
                                 <div class="ent-form-g reg-form-inp">
-                                    <input type="text" placeholder="First Name" name="firstname" class="ent-firstname" value="<?php echo (isset($_SESSION['user_first_name'])?$_SESSION['user_first_name']:'') ?>">
+                                    <input type="text" placeholder="First Name" name="firstname" class="ent-firstname" value="">
                                 </div>
                                 <!-- lname -->
                                 <div class="ent-form-g reg-form-inp">
-                                    <input type="text" placeholder="Last Name" name="lastname" class="ent-lastname" value="<?php echo (isset($_SESSION['user_last_name'])?$_SESSION['user_last_name']:'') ?>">
+                                    <input type="text" placeholder="Last Name" name="lastname" class="ent-lastname" value="">
                                 </div>
                             </div>
                             <div class="fcontent">
                                 <!-- phone -->
                                 <div class="ent-form-g reg-form-inp">
-                                    <input type="tel" placeholder="Phone" name="phone" class="ent-phone" value="">
+                                    <input type="tel" oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" placeholder="Phone" name="phone" class="ent-phone" value="">
                                 </div>
                                 <!-- country -->
                                 <div class="ent-form-g reg-form-inp">
@@ -331,7 +331,7 @@
                             </div>
                             <!-- Email -->
                             <div class="ent-form-g reg-form-inp">
-                                <input type="email" placeholder="Email" name="email" class="ent-email" value="<?php echo (isset($_SESSION['user_email'])?$_SESSION['user_email']:'') ?>">
+                                <input type="email" placeholder="Email" name="email" class="ent-email" value="">
                             </div>
                             <!-- Password -->
                             <div class="ent-form-g reg-form-inp">
@@ -350,19 +350,27 @@
 
                                     <!-- Age -->
                                     <div class="ent-form-g reg-form-inp">
-                                        <input type="text" placeholder="Age" name="petage" class="ent-petage">
+                                        <input type="number" placeholder="Age" name="petage" class="ent-petage">
                                     </div>
                                     
                                     <!-- Birthday -->
                                     <div class="ent-form-g reg-form-inp">
-                                        <input type="text" placeholder="Birthday" name="birthday" class="ent-birthday">
+                                        <input type="date" placeholder="Birthday" name="birthday" class="ent-birthday">
                                     </div>
                                     
                                     <!-- Breed -->
                                     <div class="ent-form-g reg-form-inp">
                                         <select name="breed" id="breed">
                                             <option value="-1">Breed</option>
-                                            <option value="b1">Breed 1</option>
+                                            <?php
+                                            $breeds = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}entrance_breeds ORDER BY ID DESC");
+                                            $i = 1;
+                                            if($breeds){
+                                                foreach($breeds as $breed){
+                                                    echo '<option value="b1">'.$breed->breed_name.'</option>';
+                                                }
+                                            }
+                                            ?>
                                         </select>
                                     </div>
                                     

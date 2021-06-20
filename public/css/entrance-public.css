@@ -1,0 +1,445 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+#entranse_wrap {
+    width: 100%;
+    background: linear-gradient(1deg, #E5547E, #f27876);
+    padding: 50px 0px;
+}
+.entrance_container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+.entrance_content {
+    width: 400px;
+    text-align: center;
+}
+.ent-form-contents {
+    background: #fff;
+    padding: 40px;
+}
+.ent-already-link {
+    color: #fff;
+    padding: 20px 0px;
+}
+
+.ordecoration {
+    display: flex;
+    justify-content: space-between;
+    height: 33px;
+    align-items: center;
+}
+span.beforeline,span.afterline {
+    height: 2px;
+    background: #ddd;
+    display: block;
+    width: 46%;
+}
+span.text {
+    margin: 8px;
+}
+h1.loginheading {
+    margin: 0;
+    font-size: 33px;
+}
+.ent-body form {
+    margin-top: 20px;
+}
+.ent-form-g {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.ent-form-g select,
+.ent-form-g select:focus,
+.ent-form-g input[type='tel'],
+.ent-form-g input[type='tel']:focus,
+.ent-form-g input[type='email'],
+.ent-form-g input[type='email']:focus,
+.ent-form-g input[type='password'],
+.ent-form-g input[type='text']:focus,
+.ent-form-g input[type='text'],
+.ent-form-g input[type='password']:focus,
+.ent-form-g select,
+.ent-form-g select:active,
+.ent-form-g input[type='tel'],
+.ent-form-g input[type='tel']:active,
+.ent-form-g input[type='email'],
+.ent-form-g input[type='email']:active,
+.ent-form-g input[type='password'],
+.ent-form-g input[type='text']:active,
+.ent-form-g input[type='text'],
+.ent-form-g input[type='password']:active{
+    outline: none;
+    border-style: none;
+    border: 1px solid #ddd;
+    width: 100%;
+    height: 50px;
+    margin: 0;
+    padding: 0px 10px;
+    font-size: 16px;
+}
+#register-form #yourdetails .fcontent{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+#register-form #yourdetails .fcontent .reg-form-inp{
+    width: 48%;
+    display: inline-block;
+}
+.ent-form-g.stay-login {
+    justify-content: flex-start;
+    margin: 24px 0px;
+    height: 26px;
+}
+.ent-form-g.stay-login label {
+    font-size: 16px;
+    letter-spacing: 1.6px;
+    display: flex;
+}
+
+.ent-form-g.stay-login input {
+    margin-right: 10px;
+}
+.reg-form-inp{
+    margin-bottom: 10px;
+}
+.ent-form-g select,
+.ent-form-g select:focus,
+.ent-form-g input[type='tel'],
+.ent-form-g input[type='tel']:focus,
+.ent-form-g input[type='email'],
+.ent-form-g input[type='email']:focus,
+.ent-form-g input[type='password'],
+.ent-form-g input[type='text']:focus,
+.ent-form-g input[type='text'],
+.ent-form-g input[type='password']:focus,
+.ent-form-g select,
+.ent-form-g select:active,
+.ent-form-g input[type='tel'],
+.ent-form-g input[type='tel']:active,
+.ent-form-g input[type='email'],
+.ent-form-g input[type='email']:active,
+.ent-form-g input[type='password'],
+.ent-form-g input[type='text']:active,
+.ent-form-g input[type='text'],
+.ent-form-g input[type='password']:active{
+    outline: unset;
+    border: 1px solid #ddd;
+}
+button.nxtcss,
+button.login-btn {
+    width: 100%;
+    height: 50px;
+    padding: 0;
+    background: linear-gradient(
+1deg
+, #E5547E, #f27876);
+    border: none;
+    outline: none;
+}
+.nxtcss{
+    width: fit-content !important;
+    padding-left: 60px !important;
+    padding-right: 60px !important;
+}
+button.nxtcss,:focus,button.nxtcss,:active,
+button.login-btn:focus,button.login-btn:active{
+    outline: unset;
+}
+.sc-loginbtns {
+    display: flex;
+    justify-content: space-between;
+}
+.ent-already-link a {
+    color: #fff;
+    border-bottom: 2px solid;
+}
+.g-signin2, .fb-login-button {
+    display: inline-block;
+    width: 40%;
+}
+.errors {
+    display: flex;
+    margin-bottom: 11px;
+}
+.errors .error-icon{
+    color: #f07278;
+}
+.errors p {
+    text-align: left;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+    margin-left: 15px;
+    line-height: 1.2;
+    font-size: 16px;
+    color: #f07278;
+}
+
+.reg-error .errors p {
+    text-align: center !important;
+    width: 100%;
+    margin: 0;
+}
+/* Registration form */
+#entrance_registration{
+    width: 650px;
+}
+#form-tabs {
+    display: flex;
+    background: #ddd;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: -2px;
+}
+.ent-register-body {
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+}
+.ent-register-header {
+    width: 58%;
+    margin: 0 auto;
+    padding: 8px 18px;
+    margin-top: 10px;
+    background: #ffffff;
+}
+.ent-register-contents{
+    position: relative;
+    background: #FBFAF9 !important;
+    padding: 0px !important;
+}
+#form-tabs button {
+    flex: 3.3;
+    border-style: none;
+    border: 0px;
+    font-size: 16px;
+    height: 50px;
+    outline: 0px;
+    color: #a5a5a5;
+    background: transparent;
+    box-shadow: none;
+    margin-bottom: -1px;
+}
+
+#form-tabs button:active,#form-tabs button:focus{
+    border-style: none;
+    outline: none;
+}
+.ent-active {
+    color: #2f2f2f !important;
+    background: #FBFAF9 !important;
+    clip-path: polygon(4% 0%, 95% 0%, 100% 100%, 0% 100%);
+}
+.ent-none{
+    display: none;
+}
+span.pets_breadcrumbs {
+    text-align: left;
+    height: 36px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.backbtn{
+    display: none;
+}
+span.badded{
+    color: #ffb2b9;
+    margin-left: 8px;
+    cursor: pointer;
+}
+.badded.active{
+    color: #f17477;
+}
+.pets_breadcrumbs{
+    display: none;
+}
+button.add_dog,button.skipbtn {
+    background: transparent !important;
+    border: none;
+    color: #ec677a !important;
+    font-size: 16px;
+    text-decoration: underline;
+    padding: 0;
+    margin-bottom: 15px;
+}
+button.add_dog:focus,button.skipbtn:focus{
+    border: none;
+    outline: none;
+}
+button.skipbtn {
+    color: #f07277 !important;
+}
+.tbbtn i{
+    display: none;
+}
+.loading,.loading2 {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background: #000000c7;
+    z-index: 9;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    visibility: hidden;
+}
+.loading2 span.icon,
+.loading span.icon {
+    font-size: 30px;
+    text-align: center;
+    line-height: 30px;
+    color: #ef7077;
+}
+.sc-loginbtns {
+    margin: 10px 0px;
+}
+.ent-header.ent-register-header p {
+    font-size: 16px;
+}
+.sc-loginbtns a {
+    height: 30px;
+    justify-content: center;
+    width: 48%;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 18px;
+}
+a.facebook-loginbtn {
+    background: #395999;
+    color: #fff;
+    border-color: #395999;
+    border-radius: 2px;
+}
+a.facebook-loginbtn:focus,a.facebook-loginbtn:hover {
+    background: #395999 !important;
+    transition: .3s;
+    opacity: .8;
+}
+.loading2 span.icon,
+.loading span.icon{
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 2000ms;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+
+    -moz-animation-name: spin;
+    -moz-animation-duration: 2000ms;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+
+    -ms-animation-name: spin;
+    -ms-animation-duration: 2000ms;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
+
+    animation-name: spin;
+    animation-duration: 2000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@-ms-keyframes spin { 
+    from { 
+        -ms-transform: rotate(0deg); 
+    } to { 
+        -ms-transform: rotate(360deg); 
+    }
+}
+@-moz-keyframes spin { 
+    from { 
+        -moz-transform: rotate(0deg); 
+    } to { 
+        -moz-transform: rotate(360deg); 
+    }
+}
+@-webkit-keyframes spin { 
+    from { 
+        -webkit-transform: rotate(0deg); 
+    } to { 
+        -webkit-transform: rotate(360deg); 
+    }
+}
+@keyframes spin { 
+    from { 
+        transform: rotate(0deg); 
+    } to { 
+        transform: rotate(360deg); 
+    }
+}
+@media screen and (max-width: 650px){
+    #entrance_registration{
+        width: 100%;
+    }
+    #form-tabs button{
+        font-size: 14px;
+    }
+}
+@media screen and (max-width: 550px){
+    .tbbtn .txt{
+        display: none;
+    }
+    .tbbtn i{
+        display: block;
+    }
+}
+@media screen and (max-width: 400px) {
+    #register-form #yourdetails .fcontent {
+        flex-direction: column;
+    }
+    #register-form #yourdetails .fcontent .reg-form-inp{
+        width: 100%;
+    }
+    .ent-header p {
+        font-size: 16px;
+    }
+    .entrance_content {
+        width: 100%;
+    }
+    h1.loginheading {
+        font-size: 28px;
+    }
+    .ent-form-g select,
+    .ent-form-g select:focus,
+    .ent-form-g input[type='tel'],
+    .ent-form-g input[type='tel']:focus,
+    .ent-form-g input[type='email'],
+    .ent-form-g input[type='email']:focus,
+    .ent-form-g input[type='password'],
+    .ent-form-g input[type='text']:focus,
+    .ent-form-g input[type='text'],
+    .ent-form-g input[type='password']:focus,
+    .ent-form-g select,
+    .ent-form-g select:active,
+    .ent-form-g input[type='tel'],
+    .ent-form-g input[type='tel']:active,
+    .ent-form-g input[type='email'],
+    .ent-form-g input[type='email']:active,
+    .ent-form-g input[type='password'],
+    .ent-form-g input[type='text']:active,
+    .ent-form-g input[type='text'],
+    .ent-form-g input[type='password']:active{
+        height: 40px;
+        line-height: 40px;
+        font-size: 16px;
+    }
+    button.login-btn,button.nxtcss {
+        height: 40px;
+        line-height: 40px;
+        font-size: 16px;
+    }
+    .ent-already-link {
+        font-size: 16px;
+    }
+}

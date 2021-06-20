@@ -1,0 +1,34 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+div#entrance_adminview {
+    display: flex;
+    justify-content: space-between;
+}
+.add_breed{
+     margin-bottom: 10px;
+}
+.breeds table tr:nth-child(even){background-color: #f2f2f2;}
+.breedstable {
+    height: 368px;
+    overflow-y: auto;
+}
+.breedstable table tr td:last-child {
+    text-align: right;
+}
+.pagesetup,.breeds{
+     width: 48%;
+}
+.pagesetup form table,.breeds table{
+     padding: 10px;
+}
+button.button.button-danger {
+    color: #ff7070;
+    border-color: #ff7070;
+}
+button.button.button-danger:hover,button.button.button-danger:focus {
+    color: #ff7070;
+    border-color: #ff7070;
+    box-shadow: 0 0 0 1px #ff7070;
+}

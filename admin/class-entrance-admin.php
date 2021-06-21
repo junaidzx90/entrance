@@ -137,23 +137,23 @@ class Entrance_Admin {
 
 	// redirect_url_
 	function entrance_redirect_url_func(){
-		echo '<input type="url" class="widefat" name="entrance_redirect_url" placeholder="Redirect url" value="'.get_option('entrance_redirect_url').'">';
+		echo '<input autocomplete="nope" type="url" class="widefat" name="entrance_redirect_url" placeholder="Redirect url" value="'.get_option('entrance_redirect_url').'">';
 	}
 	// google_client_id
 	function entrance_google_client_id_func(){
-		echo '<input type="password" class="widefat" name="entrance_google_client_id" placeholder="Google client" value="'.get_option('entrance_google_client_id').'">';
+		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_google_client_id" placeholder="Google client" value="'.get_option('entrance_google_client_id').'">';
 	}
 	// google_secret
 	function entrance_google_secret_id_func(){
-		echo '<input type="password" class="widefat" name="entrance_google_secret_id" placeholder="Google secret" value="'.get_option('entrance_google_secret_id').'">';
+		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_google_secret_id" placeholder="Google secret" value="'.get_option('entrance_google_secret_id').'">';
 	}
 	// google_secret
 	function entrance_facebook_app_id_func(){
-		echo '<input type="password" class="widefat" name="entrance_facebook_app_id" placeholder="Facebook app id" value="'.get_option('entrance_facebook_app_id').'">';
+		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_facebook_app_id" placeholder="Facebook app id" value="'.get_option('entrance_facebook_app_id').'">';
 	}
 	// google_secret
 	function entrance_facebook_app_secret_func(){
-		echo '<input type="password" class="widefat" name="entrance_facebook_app_secret" placeholder="Facebook secret" value="'.get_option('entrance_facebook_app_secret').'">';
+		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_facebook_app_secret" placeholder="Facebook secret" value="'.get_option('entrance_facebook_app_secret').'">';
 	}
 
 	//Menupage callback
@@ -162,7 +162,9 @@ class Entrance_Admin {
 		require_once plugin_dir_path( __FILE__ ).'partials/entrance-admin-display.php';
 	}
 
-	function entrance_logout_page(){
+	function entrance_logout_page($user_id){
+		clean_user_cache($user_id);
+		wp_clear_auth_cookie();
 		unset($_SESSION['access_token']);
 		unset($_SESSION['faccess_token']);
 	}

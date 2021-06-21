@@ -19,7 +19,7 @@ jQuery(function( $ ) {
 				$('.loading2').css('visibility', 'hidden')
 
 				if (response.success) {
-					location.href = response;
+					location.href = response.success;
 				}
 				
 				if (response.error) {

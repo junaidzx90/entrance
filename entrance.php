@@ -34,14 +34,14 @@ require_once 'vendor/autoload.php';
 $google_client = new Google_Client();
 $google_client->setClientId(get_option('entrance_google_client_id','demo'));
 $google_client->setClientSecret(get_option('entrance_google_secret_id','demo'));
-$google_client->setRedirectUri("$homeurl");
+$google_client->setRedirectUri($homeurl);
 $google_client->addScope('email');
 $google_client->addScope('profile');
 
 $facebook = new \Facebook\Facebook([
 	'app_id'	=>	get_option('entrance_facebook_app_id','demo'),
 	'app_secret'	=>	get_option('entrance_facebook_app_secret','demo'),
-	'default_graph_version'	=>	'v2.10'
+	'default_graph_version'	=> 'v2.10'
 ]);
 
 

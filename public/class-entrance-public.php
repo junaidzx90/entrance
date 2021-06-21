@@ -60,6 +60,7 @@ class Entrance_Public {
 			add_shortcode( 'entrance_login', [$this,'entrance_login_callback_function']);
 			add_shortcode( 'entrance_register', [$this,'entrance_register_callback_function']);
 		}
+		$this->entrance_social_login('');
 	}
 
 	/**
@@ -89,13 +90,9 @@ class Entrance_Public {
 	}
 	
 	function entrance_login_access($user_id){
-		clean_user_cache($user_id);
 		wp_clear_auth_cookie();
 		wp_set_current_user($user_id);
-		wp_set_auth_cookie($user_id, true, false);
-		
-		$user = get_user_by('id', $user_id);
-		update_user_caches($user);
+		wp_set_auth_cookie($user_id);
 	}
 
 	function entrance_social_user_store($email,$fname,$lname = ''){
@@ -103,19 +100,21 @@ class Entrance_Public {
 		
 		$user = '';
 
-		if(is_email($email)){
-			$user = get_user_by( 'email', $email );
-		}
+		$user_id = 0;
+		$user = get_user_by( 'email', $email );
+		$user_id = $user->ID;
 
 		if(!$user){
-			$user_id = wc_create_new_customer( $email, $fname, $password );
+			$emailaddr = explode("@", $email , 2);
+			$username = $emailaddr[0];
+
+			$user_id = wc_create_new_customer( $email, $username, $password );
 
 			update_user_meta( $user_id, "shipping_first_name", $fname );
 			update_user_meta( $user_id, "shipping_last_name", $lname );
 		}
 
-		$this->entrance_login_access($user->ID);
-		return true;
+		$this->entrance_login_access($user_id);
 	}
 
 	function entrance_social_login($btn){
@@ -123,57 +122,65 @@ class Entrance_Public {
 		$homeurl = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
 		
 		$facebook_helper = $facebook->getRedirectLoginHelper();
+
+		if (isset($_GET['state'])) { 
+			$facebook_helper->getPersistentDataHandler()->set('state', $_GET['state']); 
+		}
+
 		$permission = ['email'];
 		$flogin_url = $facebook_helper->getLoginUrl($homeurl,$permission);
-		try{
-			$ftoken = $facebook_helper->getAccessToken();
-			if(!isset($_SESSION['faccess_token'])){
-				$_SESSION['faccess_token'] = $ftoken;
-			}
-		}catch(Exception $e){
-			$e->getTraceAsString();
-		}
-
-		if(isset($_SESSION['faccess_token'])){
-			try{
-				$facebook->getDefaultAccessToken($_SESSION['faccess_token']);
-				$results = $facebook->get("/me?fields=name,email");
-				$fuser = $facebook->getGraphUser();
-			}catch(Exception $e){
-				$e->getTraceAsString();
-			}
-		}
-
-		if(isset($_SESSION['faccess_token'])){
-			$_SESSION['user_first_name'] = $fuser->getField('name');
-			$_SESSION['user_email'] =  $fuser->getField('email');
-			$this->entrance_social_user_store($_SESSION['user_email'], $_SESSION['user_first_name']);
-			header("Location:".$homeurl);
-		}
 
 		$flogin_button = '<a class="facebook-loginbtn" href="'.$flogin_url.'"><i class="fab fa-facebook-f"></i></a>';
 		$glogin_button = '<a class="google-loginbtn" href="'.$google_client->createAuthUrl().'"><svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="24px" height="24px"><path fill="#fbc02d" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12	s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20	s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#e53935" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039	l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4caf50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36	c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1565c0" d="M43.611,20.083L43.595,20L42,20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571	c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg></a>';
 
 		if(isset($_GET['code'])){
-			$gtoken = $google_client->fetchAccessTokenWithAuthCode($_GET['code']);
+			if (isset($_GET['state'])) { 
+				try{
+					if(isset($_SESSION['faccess_token'])){
+						$faccess_token = $_SESSION['faccess_token'];
+					}else{
+						$faccess_token = $facebook_helper->getAccessToken();
+						$_SESSION['faccess_token'] = $faccess_token;
+						$facebook->setDefaultAccessToken($_SESSION['faccess_token']);
+					}
 
-			if(!isset($gtoken['error'])){
-				$google_client->setAccessToken($gtoken);
-				$_SESSION['access_token'] = $gtoken['access_token'];
+					$graph_response = $facebook->get('/me?fields=name,email',$faccess_token);
+					$fuserinfo = $graph_response->getGraphUser();
 
-				$google_service = new Google_Service_Oauth2($google_client);
-				$userData = $google_service->userinfo->get();
+					$_SESSION['fuser_first_name'] = $fuserinfo['name'];
+					$_SESSION['fuser_email'] =  $fuserinfo['email'];
+					if(isset($_SESSION['fuser_email'])){
+						$this->entrance_social_user_store($_SESSION['fuser_email'], $_SESSION['fuser_first_name'],'');
+					}
+				}catch(Exception $e){
+					$e->getTraceAsString();
+				}
+			}else{
+				try{
+					$gtoken = $google_client->fetchAccessTokenWithAuthCode($_GET['code']);
+					if(!isset($gtoken['error'])){
+						$google_client->setAccessToken($gtoken);
+						$_SESSION['access_token'] = $gtoken['access_token'];
 
-				if(!empty($userData['given_name'])){
-					$_SESSION['user_first_name'] = $userData['given_name'];
+						$google_service = new Google_Service_Oauth2($google_client);
+						$userData = $google_service->userinfo->get();
+
+						if(!empty($userData['given_name'])){
+							$_SESSION['user_first_name'] = $userData['given_name'];
+						}
+						if(!empty($userData['family_name'])){
+							$_SESSION['user_last_name'] = $userData['family_name'];
+						}
+						if(!empty($userData['email'])){
+							$_SESSION['user_email'] = $userData['email'];
+						}
+						if(isset($_SESSION['user_email'])){
+							$this->entrance_social_user_store($_SESSION['user_email'], $_SESSION['user_first_name'], $_SESSION['user_last_name']);
+						}
+					}
+				}catch(Exception $e){
+					$e->getTraceAsString();
 				}
-				if(!empty($userData['family_name'])){
-					$_SESSION['user_last_name'] = $userData['family_name'];
-				}
-				if(!empty($userData['email'])){
-					$_SESSION['user_email'] = $userData['email'];
-				}
-				$this->entrance_social_user_store($_SESSION['user_email'], $_SESSION['user_first_name'], $_SESSION['user_last_name']);
 			}
 		}
 

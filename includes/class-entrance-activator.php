@@ -49,6 +49,8 @@ class Entrance_Activator {
 			`breed_name` VARCHAR(255) NOT NULL,
 			PRIMARY KEY (`ID`)) ENGINE = InnoDB";
 			dbDelta($entrance_breeds);
+
+		flush_rewrite_rules();
 	}
 
 }

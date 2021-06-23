@@ -11,12 +11,13 @@
  * @package    Entrance
  * @subpackage Entrance/public/partials
  */
+global $pagebg,$formbg;
 ?>
 
-<div id="entranse_wrap">
+<div id="entranse_wrap" style="background: <?php echo $pagebg; ?> !important">
     <div class="entrance_container">
         <div class="entrance_content">
-            <div class="ent-form-contents">
+            <div class="ent-form-contents" style="background: <?php echo $formbg; ?> !important">
                 <?php
                 $res = $this->entrance_login_access_by_form();
                 if(!empty($res)){

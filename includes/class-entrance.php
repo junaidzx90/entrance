@@ -159,6 +159,10 @@ class Entrance {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'entrance_menu_page' );
 		$this->loader->add_action( 'wp_logout', $plugin_admin, 'entrance_logout_page' );
 
+		$this->loader->add_action( 'init', $plugin_admin, 'entrance_woo_menus_endpoints' );
+		$this->loader->add_action( 'woocommerce_account_my_profile_endpoint', $plugin_admin, 'entrance_my_profile_endpoint_content' );
+		$this->loader->add_action( 'woocommerce_account_my_pets_endpoint', $plugin_admin, 'entrance_my_pets_endpoint_content' );
+		$this->loader->add_action( 'woocommerce_account_pets_endpoint', $plugin_admin, 'entrance_pets_endpoint_content' );
 	}
 
 	/**
@@ -178,6 +182,7 @@ class Entrance {
 
 		$this->loader->add_action("wp_ajax_entrance_registration_form_data_store", $plugin_public, "entrance_registration_form_data_store");
 		$this->loader->add_action("wp_ajax_nopriv_entrance_registration_form_data_store", $plugin_public, "entrance_registration_form_data_store");
+
 	}
 
 	/**

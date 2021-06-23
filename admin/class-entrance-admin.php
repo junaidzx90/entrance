@@ -51,7 +51,7 @@ class Entrance_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
+		add_filter ( 'woocommerce_account_menu_items', [$this,'entrance_my_profile'], 40 );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Entrance_Admin {
 	// Entrance menupage
 	function entrance_menu_page(){
 		add_menu_page( 'Entrance', 'Entrance', 'manage_options', 'entrance', [$this,'entrance_menupage'],'dashicons-migrate',45 );
-		// For url
+
 		add_settings_section( 'entrance_settings_section', '', '', 'entrance_settings_page' );
 		// login page
 		add_settings_field( 'entrance_login_page', 'Login page', [$this,'entrance_login_page_func'], 'entrance_settings_page', 'entrance_settings_section');
@@ -102,6 +102,12 @@ class Entrance_Admin {
 		// Facebook Secret
 		add_settings_field( 'entrance_facebook_app_secret', 'Facebook Secret', [$this,'entrance_facebook_app_secret_func'], 'entrance_settings_page', 'entrance_settings_section');
 		register_setting( 'entrance_settings_section', 'entrance_facebook_app_secret');
+		// Page bg
+		add_settings_field( 'entrance_page_bg', 'Page background', [$this,'entrance_page_bg_func'], 'entrance_settings_page', 'entrance_settings_section');
+		register_setting( 'entrance_settings_section', 'entrance_page_bg');
+		// Form bg
+		add_settings_field( 'entrance_form_bg', 'Form background', [$this,'entrance_form_bg_func'], 'entrance_settings_page', 'entrance_settings_section');
+		register_setting( 'entrance_settings_section', 'entrance_form_bg');
 	}
 
 	// Login page inputs
@@ -155,6 +161,14 @@ class Entrance_Admin {
 	function entrance_facebook_app_secret_func(){
 		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_facebook_app_secret" placeholder="Facebook secret" value="'.get_option('entrance_facebook_app_secret').'">';
 	}
+	// page_bg
+	function entrance_page_bg_func(){
+		echo '<input type="color" name="entrance_page_bg" value="'.get_option('entrance_page_bg','#f27876').'">';
+	}
+	// form bg
+	function entrance_form_bg_func(){
+		echo '<input type="color" name="entrance_form_bg" value="'.get_option('entrance_form_bg','#ffffff').'">';
+	}
 
 	//Menupage callback
 	function entrance_menupage(){
@@ -167,5 +181,31 @@ class Entrance_Admin {
 		wp_clear_auth_cookie();
 		unset($_SESSION['access_token']);
 		unset($_SESSION['faccess_token']);
+	}
+
+
+	function entrance_my_profile( $menu_links ){
+
+		$menu_links = array_slice( $menu_links, 0, 5, true ) 
+		+ array( 'my_profile' => 'My Profile', 'my_pets' => 'My pets', 'pets' => 'Pets' )
+		+ array_slice( $menu_links, 5, NULL, true );
+
+		return $menu_links;
+	}
+
+	function entrance_woo_menus_endpoints() {
+		add_rewrite_endpoint( 'my_profile', EP_PAGES );
+		add_rewrite_endpoint( 'my_pets', EP_PAGES );
+		add_rewrite_endpoint( 'pets', EP_PAGES );
+	}
+
+	function entrance_my_profile_endpoint_content() {
+		require_once plugin_dir_path( __FILE__ )."partials/entrance-my-profile.php";
+	}
+	function entrance_my_pets_endpoint_content() {
+		require_once plugin_dir_path( __FILE__ )."partials/entrance-my-pets.php";
+	}
+	function entrance_pets_endpoint_content() {
+		require_once plugin_dir_path( __FILE__ )."partials/entrance-pets.php";
 	}
 }

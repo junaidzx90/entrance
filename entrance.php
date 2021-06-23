@@ -32,19 +32,20 @@ if ( ! defined( 'WPINC' ) ) {
 $homeurl = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
 require_once 'vendor/autoload.php';
 $google_client = new Google_Client();
-$google_client->setClientId(get_option('entrance_google_client_id','demo'));
-$google_client->setClientSecret(get_option('entrance_google_secret_id','demo'));
+$google_client->setClientId(!empty(get_option('entrance_google_client_id'))?get_option('entrance_google_client_id'):'demo');
+$google_client->setClientSecret(!empty(get_option('entrance_google_secret_id'))?get_option('entrance_google_secret_id'):'demo');
 $google_client->setRedirectUri($homeurl);
 $google_client->addScope('email');
 $google_client->addScope('profile');
 
 $facebook = new \Facebook\Facebook([
-	'app_id'	=>	get_option('entrance_facebook_app_id','demo'),
-	'app_secret'	=>	get_option('entrance_facebook_app_secret','demo'),
+	'app_id'	=>	!empty(get_option('entrance_facebook_app_id'))?get_option('entrance_facebook_app_id'):'demo',
+	'app_secret'	=>	!empty(get_option('entrance_facebook_app_secret'))?get_option('entrance_facebook_app_secret'):'demo',
 	'default_graph_version'	=> 'v2.10'
 ]);
 
-
+$pagebg = get_option('entrance_page_bg','#f27876');
+$formbg = get_option('entrance_form_bg','#ffffff');
 /**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org

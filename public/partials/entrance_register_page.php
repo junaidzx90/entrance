@@ -11,16 +11,22 @@ global $wpdb;
  * @package    Entrance
  * @subpackage Entrance/public/partials
  */
+global $pagebg,$formbg;
 ?>
-<div id="entranse_wrap">
+<div id="entranse_wrap" style="background: <?php echo $pagebg; ?> !important">
     <div class="entrance_container" <?php echo (is_user_logged_in()?'style="margin-top:32px;"':'') ?> >
         <div class="entrance_content" id="entrance_registration">
            
-            <div class="ent-form-contents ent-register-contents">
+            <div class="ent-form-contents ent-register-contents" style="background: <?php echo $formbg; ?> !important">
                 <div class="loading">
                     <span class="icon"><i class="fas fa-yin-yang"></i></span>
                 </div>
                 <div id="form-tabs">
+                    <style>
+                        .ent-active{
+                            background-color: <?php echo $formbg ?> !important;
+                        }
+                    </style>
                     <button data-name="yourdetails" class="tbbtn ent-active">
                         <span class="txt">Your Details</span>
                         <span class="icon"><i class="fas fa-info-circle"></i></span>
@@ -34,26 +40,28 @@ global $wpdb;
                         <span class="icon"><i class="fas fa-dolly"></i></span>
                     </button>
                 </div>
+                
                 <div class="ent-header ent-register-header">
-                <div class="error-show reg-error">
-                <?php
-                if(isset($_REQUEST['error'])){
-                    echo '<div class="errors">';
-                    echo '<p><span class="error-icon">⊘</span>&nbsp;'.ucfirst(str_replace('_',' ',$_REQUEST['error'])).'</p>';
-                    echo '</div>';
-                }
-                ?>
-            </div>
-                    <p>Login with your social account</p>
-                    <div class="sc-loginbtns">
-                        <?php echo $this->entrance_social_login('g'); ?>
-                        <?php echo $this->entrance_social_login('fb'); ?>
+                    <h1 class="registertitle">Sign UP</h1>
+                    <div class="error-show reg-error">
+                        <?php
+                        if(isset($_REQUEST['error'])){
+                            echo '<div class="errors">';
+                            echo '<p><span class="error-icon">⊘</span>&nbsp;'.ucfirst(str_replace('_',' ',$_REQUEST['error'])).'</p>';
+                            echo '</div>';
+                        }
+                        ?>
+                    </div>
+                    <!-- <p>Login with your social account</p> -->
+                    <!-- <div class="sc-loginbtns">
+                        <?php //echo $this->entrance_social_login('g'); ?>
+                        <?php //echo $this->entrance_social_login('fb'); ?>
                     </div>
                     <div class="ordecoration">
                         <span class="beforeline"></span>
                         <span class="text">or</span>
                         <span class="afterline"></span>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="ent-body ent-register-body">
@@ -343,6 +351,9 @@ global $wpdb;
                             <span class="pets_breadcrumbs"><span data-id="1" class="badded">First dog</span></span>
                             <div id="petdetailwrap" class="">
                                 <div data-id="1" class="item">
+                                    <span class="delete-item">
+                                        <svg id="Layer_1" enable-background="new 0 0 512 512" height="16px" viewBox="0 0 512 512" width="16px" xmlns="http://www.w3.org/2000/svg"><g><path d="m424 64h-88v-16c0-26.467-21.533-48-48-48h-64c-26.467 0-48 21.533-48 48v16h-88c-22.056 0-40 17.944-40 40v56c0 8.836 7.164 16 16 16h8.744l13.823 290.283c1.221 25.636 22.281 45.717 47.945 45.717h242.976c25.665 0 46.725-20.081 47.945-45.717l13.823-290.283h8.744c8.836 0 16-7.164 16-16v-56c0-22.056-17.944-40-40-40zm-216-16c0-8.822 7.178-16 16-16h64c8.822 0 16 7.178 16 16v16h-96zm-128 56c0-4.411 3.589-8 8-8h336c4.411 0 8 3.589 8 8v40c-4.931 0-331.567 0-352 0zm313.469 360.761c-.407 8.545-7.427 15.239-15.981 15.239h-242.976c-8.555 0-15.575-6.694-15.981-15.239l-13.751-288.761h302.44z"/><path d="m256 448c8.836 0 16-7.164 16-16v-208c0-8.836-7.164-16-16-16s-16 7.164-16 16v208c0 8.836 7.163 16 16 16z"/><path d="m336 448c8.836 0 16-7.164 16-16v-208c0-8.836-7.164-16-16-16s-16 7.164-16 16v208c0 8.836 7.163 16 16 16z"/><path d="m176 448c8.836 0 16-7.164 16-16v-208c0-8.836-7.164-16-16-16s-16 7.164-16 16v208c0 8.836 7.163 16 16 16z"/></g></svg>
+                                    </span>
                                     <!-- Name -->
                                     <div class="ent-form-g reg-form-inp">
                                         <input type="text" placeholder="Pet name" name="pet_name" class="ent-petname">

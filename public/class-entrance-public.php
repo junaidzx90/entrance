@@ -51,7 +51,13 @@ class Entrance_Public {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		add_action( 'woocommerce_checkout_before_customer_details', [$this,'checkout'] );
+	}
 
+	function checkout(){
+		if(!is_user_logged_in(  )){
+			wp_safe_redirect( 'http://localhost/junudev/entrance-register/' );
+		}
 	}
 
 	public function public_filters(){
@@ -69,6 +75,10 @@ class Entrance_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
+		global $wp_query;
+		if(isset( $wp_query->query_vars['my_pets'] )){
+			wp_enqueue_style( 'dataTable', plugin_dir_url( __FILE__ ) . 'css/dataTable.css', array(), '', 'all' );
+		}
 		wp_enqueue_style( 'fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', array(), '', 'all' );
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/entrance-public.css', array(), microtime(), 'all' );
 
@@ -80,6 +90,11 @@ class Entrance_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+		global $wp_query;
+		if(isset( $wp_query->query_vars['my_pets'] )){
+			wp_enqueue_script( 'dataTable', plugin_dir_url( __FILE__ ) . 'js/dataTable.js', array( 'jquery' ), '', true );
+			wp_enqueue_script( 'datatable-con', plugin_dir_url( __FILE__ ) . 'js/datatable-con.js', array( 'dataTable' ), '', true );
+		}
 		wp_enqueue_script( 'ajaxform', plugin_dir_url( __FILE__ ) . 'js/ajaxform.js', array( 'jquery' ), microtime(), true );
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/entrance-public.js', array( 'jquery' ), microtime(), true );
 		wp_localize_script($this->plugin_name, "submitform_ajaxurl", array(
@@ -110,7 +125,12 @@ class Entrance_Public {
 
 			$user_id = wc_create_new_customer( $email, $username, $password );
 
+			update_user_meta( $user_id, "billing_first_name", $fname );
+			update_user_meta( $user_id, "first_name", $fname );
 			update_user_meta( $user_id, "shipping_first_name", $fname );
+
+			update_user_meta( $user_id, "billing_last_name", $lname );
+			update_user_meta( $user_id, "last_name", $lname );
 			update_user_meta( $user_id, "shipping_last_name", $lname );
 		}
 
@@ -149,8 +169,12 @@ class Entrance_Public {
 
 					$_SESSION['fuser_first_name'] = $fuserinfo['name'];
 					$_SESSION['fuser_email'] =  $fuserinfo['email'];
-					if(isset($_SESSION['fuser_email'])){
+					if(isset($_SESSION['fuser_email']) && !empty($_SESSION['fuser_email'])){
 						$this->entrance_social_user_store($_SESSION['fuser_email'], $_SESSION['fuser_first_name'],'');
+					}else{
+						unset($_SESSION['faccess_token']);
+						wp_safe_redirect( get_the_permalink().'?error="This account doesn\'t use email address."' );
+						
 					}
 				}catch(Exception $e){
 					$e->getTraceAsString();
@@ -385,8 +409,18 @@ class Entrance_Public {
 				$shippingaddr['addr_type'] = sanitize_text_field($data['addr_type']);
 			}
 
-			$pets = [$pet1,$pet2,$pet3];
-	
+			$pets = [];
+
+			if(!empty($pet1)){
+				$pets[] = $pet1;
+			}
+			if(!empty($pet2)){
+				$pets[] = $pet2;
+			}
+			if(!empty($pet3)){
+				$pets[] = $pet3;
+			}
+			
 			if(!empty($yourdetails)){
 				$emailaddr = explode("@", $yourdetails['email'], 2);
                 $username = $emailaddr[0];
@@ -394,7 +428,12 @@ class Entrance_Public {
 				if(!empty($yourdetails['email']) && !empty($yourdetails['password'])){
 					$user_id = wc_create_new_customer( strtolower($yourdetails['email']), $username, $yourdetails['password'] );
 
+					update_user_meta( $user_id, "billing_first_name", $yourdetails['firstname'] );
+					update_user_meta( $user_id, "first_name", $yourdetails['firstname'] );
 					update_user_meta( $user_id, "shipping_first_name", $yourdetails['firstname'] );
+
+					update_user_meta( $user_id, "billing_last_name", $yourdetails['lastname'] );
+					update_user_meta( $user_id, "last_name", $yourdetails['lastname'] );
 					update_user_meta( $user_id, "shipping_last_name", $yourdetails['lastname'] );
 					update_user_meta( $user_id, "billing_phone", $yourdetails['phone'] );
 					update_user_meta( $user_id, "shipping_country", $yourdetails['country'] );
@@ -404,21 +443,30 @@ class Entrance_Public {
 						update_user_meta( $user_id, "shipping_address_2", $shippingaddr['addr_2'] );
 						update_user_meta( $user_id, "address_type", $shippingaddr['addr_type'] );
 						update_user_meta( $user_id, "shipping_city", $shippingaddr['city'] );
+						update_user_meta( $user_id, "billing_city", $shippingaddr['city'] );
 						update_user_meta( $user_id, "shipping_postcode", $shippingaddr['pincode'] );
+						update_user_meta( $user_id, "billing_postcode", $shippingaddr['pincode'] );
+						update_user_meta( $user_id, "billing_address_1", $shippingaddr['addr_1'] );
+						update_user_meta( $user_id, "billing_address_2", $shippingaddr['addr_2'] );
 					}
 
 					if(!empty($pets)){
-						$redirect = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
+						$redirect = get_home_url().'/checkout';
 
 						foreach($pets as $pet){
+							$pet_name = $pet['pet_name'];
+							$petage = $pet['petage'];
+							$birthday = $pet['birthday'];
+							$breed = $pet['breed'];
+							$gender = $pet['gender'];
 							global $wpdb;
 							$wpdb->insert($wpdb->prefix.'entrance_pets',array(
 								'user_id' => $user_id, 
-								'pet_name' => $pet['pet_name'],
-								'pet_age' => $pet['petage'],
-								'pet_birthday' => $pet['birthday'],
-								'pet_breed' => $pet['breed'],
-								'pet_gender' => $pet['gender']
+								'pet_name' => $pet_name,
+								'pet_age' => $petage,
+								'pet_birthday' => $birthday,
+								'pet_breed' => $breed,
+								'pet_gender' => $gender
 							),array('%d','%s','%d','%s','%s','%s'));
 						}
 					}

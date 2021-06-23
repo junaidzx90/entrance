@@ -45,11 +45,26 @@ span.text {
     font-family: 'Raleway' !important;
     letter-spacing: 1.1px;
 }
-h1.loginheading {
+h1.loginheading,.registertitle {
     margin: 0;
     font-size: 33px;
     font-family: 'Raleway' !important;
     letter-spacing: 1.1px;
+}
+.item {
+    position: relative;
+}
+.item:first-child .delete-item{
+    display: none;
+}
+
+span.delete-item {
+    float: right;
+    fill: red;
+    cursor: pointer;
+    position: absolute;
+    right: 0px;
+    top: -30px;
 }
 .ent-body form {
     margin-top: 20px;
@@ -161,9 +176,8 @@ button.login-btn {
     width: 100%;
     height: 50px;
     padding: 0;
-    background: linear-gradient(
-1deg
-, #E5547E, #f27876);
+    background: #4A7BA7;
+    color: #fff;
     border: none;
     outline: none;
     font-family: 'Raleway' !important;
@@ -203,6 +217,13 @@ button.login-btn:focus,button.login-btn:active{
     margin-bottom: 11px;
     font-family: 'Raleway' !important;
     letter-spacing: 1.1px;
+}
+div#entrance_registration .errors {
+    margin-top: 20px;
+}
+div#entrance_registration .errors p {
+    text-align: center;
+    margin: 0 auto;
 }
 .errors .error-icon{
     color: #f07278;
@@ -371,13 +392,13 @@ button.skipbtn {
     padding: 18px;
 }
 a.facebook-loginbtn {
-    background: #395999;
+    background: #4A7BA7;
     color: #fff;
-    border-color: #395999;
+    border-color: #4A7BA7;
     border-radius: 2px;
 }
 a.facebook-loginbtn:focus,a.facebook-loginbtn:hover {
-    background: #395999 !important;
+    background: #4A7BA7 !important;
     transition: .3s;
     opacity: .8;
 }
@@ -431,6 +452,81 @@ a.facebook-loginbtn:focus,a.facebook-loginbtn:hover {
         transform: rotate(360deg); 
     }
 }
+.profile-info table tr, .profile-info table tr td {
+    vertical-align: middle;
+    font-family: 'Raleway' !important;
+}
+.profile-info table tr td h6{
+    margin: 0;
+    font-family: 'Raleway' !important;
+    font-size: 16px;
+}
+
+.petpopup{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #2f2f2f71;
+    z-index: 99;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* display: none; */
+}
+.popup-contents{
+    position: relative;
+    width: 60%;
+    background-color: #fff;
+    padding: 10px;
+    height: fit-content;
+}
+span.closewindow {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    background: red;
+    font-size: 24px;
+    line-height: 24px;
+    width: 24px;
+    text-align: center;
+    border-radius: 50%;
+    color: #fff;
+    transform: rotateZ(
+45deg
+);
+    cursor: pointer;
+    box-shadow: 0 0 8px black;
+}
+.petpopup hr {
+    margin-top: 0px;
+}
+
+.petpopup h4 {
+    margin-bottom: 11px;
+}
+button.addpetbtn,button.addpet {
+    background: #0b648e;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 3px;
+}
+button.addpet {
+    background: transparent;
+    color: #767676;
+    margin-bottom: 20px;
+}
+.dataTables_wrapper .dataTables_length select,div#pets-details_wrapper input[type="search"] {
+    height: 35px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.1em 1em;
+}
+.dataTables_wrapper .dataTables_info {
+    padding-top: 3px;
+}
 @media screen and (max-width: 650px){
     #entrance_registration{
         width: 100%;
@@ -460,7 +556,7 @@ a.facebook-loginbtn:focus,a.facebook-loginbtn:hover {
     .entrance_content {
         width: 100%;
     }
-    h1.loginheading {
+    h1.loginheading,.registertitle {
         font-size: 28px;
     }
     .ent-form-g select,

@@ -166,7 +166,7 @@ jQuery(function( $ ) {
 		loading(500);
 		let btn = $(this)
 		e.preventDefault();
-		
+
 		$('#petdetailwrap').children().each(function () {
 			if ($('#petdetailwrap').children().length < 3) {
 				$(this).hide();
@@ -222,5 +222,13 @@ jQuery(function( $ ) {
 				$(this).show();
 			}
 		})
+	});
+
+	$(document).on("click",'.delete-item', function () {
+		let data = $(this).parent('.item').attr('data-it');
+		$('.pets_breadcrumbs').find('.active').remove();
+		$('.pets_breadcrumbs').children().last().addClass('active')
+		$(this).parent('.item').prev().show();
+		$(this).parent('.item').remove();
 	});
 });

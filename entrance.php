@@ -16,7 +16,7 @@ ob_start();
  * Plugin Name:       Entrance
  * Plugin URI:        https://github.com/junaidzx90/entrance
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Md Junayed
  * Author URI:        https://www.fiverr.com/junaidzx90
  * License:           GPL-2.0+
@@ -46,12 +46,13 @@ $facebook = new \Facebook\Facebook([
 
 $pagebg = get_option('entrance_page_bg','#f27876');
 $formbg = get_option('entrance_form_bg','#ffffff');
+
 /**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'ENTRANCE_VERSION', '1.0.0' );
+define( 'ENTRANCE_VERSION', '1.0.1' );
 
 /**
  * The code that runs during plugin activation.

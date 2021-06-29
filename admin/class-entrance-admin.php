@@ -51,7 +51,7 @@ class Entrance_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		add_filter ( 'woocommerce_account_menu_items', [$this,'entrance_my_profile'], 40 );
+
 	}
 
 	/**
@@ -60,7 +60,10 @@ class Entrance_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		if(isset($_GET['page']) && $_GET['page'] == 'entrance'){
+		if(isset($_GET['page']) && $_GET['page'] == 'pets'){
+			wp_enqueue_style( 'dataTable', plugin_dir_url( __FILE__ ) . 'css/dataTable.css', array(), '', 'all' );
+		}
+		if(isset($_GET['page']) && ($_GET['page'] == 'entrance' || $_GET['page'] == 'pets')){
 			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/entrance-admin.css', array(), $this->version, 'all' );
 		}
 	}
@@ -71,6 +74,11 @@ class Entrance_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+		if(isset($_GET['page']) && $_GET['page'] == 'pets'){
+			wp_enqueue_script( 'dataTable', plugin_dir_url( __FILE__ ) . 'js/dataTable.js', array( 'jquery' ), '', false );
+			wp_enqueue_script( 'tableconn', plugin_dir_url( __FILE__ ) . 'js/tableconn.js', array( 'jquery' ), '', false );
+		}
+
 		if(isset($_GET['page']) && $_GET['page'] == 'entrance'){
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/entrance-admin.js', array( 'jquery' ), $this->version, false );
 		}
@@ -79,6 +87,8 @@ class Entrance_Admin {
 	// Entrance menupage
 	function entrance_menu_page(){
 		add_menu_page( 'Entrance', 'Entrance', 'manage_options', 'entrance', [$this,'entrance_menupage'],'dashicons-migrate',45 );
+		add_submenu_page( 'entrance', 'General Settings', 'General Settings', 'manage_options', 'entrance', [$this,'entrance_menupage'] );
+		add_submenu_page( 'entrance', 'Pet details', 'Pet details', 'manage_options', 'pets', [$this,'entrance_pet_details_admin'] );
 
 		add_settings_section( 'entrance_settings_section', '', '', 'entrance_settings_page' );
 		// login page
@@ -103,8 +113,8 @@ class Entrance_Admin {
 		add_settings_field( 'entrance_facebook_app_secret', 'Facebook Secret', [$this,'entrance_facebook_app_secret_func'], 'entrance_settings_page', 'entrance_settings_section');
 		register_setting( 'entrance_settings_section', 'entrance_facebook_app_secret');
 		// Page bg
-		add_settings_field( 'entrance_page_bg', 'Page background', [$this,'entrance_page_bg_func'], 'entrance_settings_page', 'entrance_settings_section');
-		register_setting( 'entrance_settings_section', 'entrance_page_bg');
+		//add_settings_field( 'entrance_page_bg', 'Page background', [$this,'entrance_page_bg_func'], 'entrance_settings_page', 'entrance_settings_section');
+		//register_setting( 'entrance_settings_section', 'entrance_page_bg');
 		// Form bg
 		add_settings_field( 'entrance_form_bg', 'Form background', [$this,'entrance_form_bg_func'], 'entrance_settings_page', 'entrance_settings_section');
 		register_setting( 'entrance_settings_section', 'entrance_form_bg');
@@ -162,9 +172,9 @@ class Entrance_Admin {
 		echo '<input autocomplete="nope" type="password" class="widefat" name="entrance_facebook_app_secret" placeholder="Facebook secret" value="'.get_option('entrance_facebook_app_secret').'">';
 	}
 	// page_bg
-	function entrance_page_bg_func(){
-		echo '<input type="color" name="entrance_page_bg" value="'.get_option('entrance_page_bg','#f27876').'">';
-	}
+	// function entrance_page_bg_func(){
+	// 	echo '<input type="color" name="entrance_page_bg" value="'.get_option('entrance_page_bg','#f27876').'">';
+	// }
 	// form bg
 	function entrance_form_bg_func(){
 		echo '<input type="color" name="entrance_form_bg" value="'.get_option('entrance_form_bg','#ffffff').'">';
@@ -181,31 +191,53 @@ class Entrance_Admin {
 		wp_clear_auth_cookie();
 		unset($_SESSION['access_token']);
 		unset($_SESSION['faccess_token']);
+
+		wp_safe_redirect(get_permalink(get_option('entrance_login_page')));
+		exit;
 	}
 
-
-	function entrance_my_profile( $menu_links ){
-
-		$menu_links = array_slice( $menu_links, 0, 5, true ) 
-		+ array( 'my_profile' => 'My Profile', 'my_pets' => 'My pets', 'pets' => 'Pets' )
-		+ array_slice( $menu_links, 5, NULL, true );
-
-		return $menu_links;
-	}
-
-	function entrance_woo_menus_endpoints() {
-		add_rewrite_endpoint( 'my_profile', EP_PAGES );
-		add_rewrite_endpoint( 'my_pets', EP_PAGES );
-		add_rewrite_endpoint( 'pets', EP_PAGES );
-	}
-
-	function entrance_my_profile_endpoint_content() {
-		require_once plugin_dir_path( __FILE__ )."partials/entrance-my-profile.php";
-	}
-	function entrance_my_pets_endpoint_content() {
-		require_once plugin_dir_path( __FILE__ )."partials/entrance-my-pets.php";
-	}
-	function entrance_pets_endpoint_content() {
-		require_once plugin_dir_path( __FILE__ )."partials/entrance-pets.php";
+	function entrance_pet_details_admin(){
+		?>
+		<div id="entrance_pets_details">
+			<h3>Pet details</h3>
+			<hr>
+			<div class="pets_details-info">
+				<table id="pets-details">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Name</th>
+							<th>Age</th>
+							<th>Birthday</th>
+							<th>Breed</th>
+							<th>Gender</th>
+							<th>Added by</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+							global $wpdb,$current_user;
+							$pets = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}entrance_pets ORDER BY ID DESC");
+							if($pets){
+								$i = 1;
+								foreach($pets as $pet){
+									echo '<tr>';
+									echo '<td>'.$i.'</td>';
+									echo '<td>'.$pet->pet_name.'</td>';
+									echo '<td>'.$pet->pet_age.'</td>';
+									echo '<td>'.$pet->pet_birthday.'</td>';
+									echo '<td>'.$pet->pet_breed.'</td>';
+									echo '<td class="'.$pet->pet_gender.'">'.ucfirst($pet->pet_gender).'</td>';
+									echo '<td>'.ucfirst(get_user_by( 'ID', $pet->user_id )->display_name).'</td>';
+									echo '</tr>';
+									$i++;
+								}
+							}
+						?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<?php
 	}
 }

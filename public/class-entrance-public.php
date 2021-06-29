@@ -48,15 +48,13 @@ class Entrance_Public {
 	 * @param      string    $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		add_action( 'woocommerce_checkout_before_customer_details', [$this,'checkout'] );
 	}
 
-	function checkout(){
+	function checkout_redirect_tologin(){
 		if(!is_user_logged_in(  )){
-			wp_safe_redirect( 'http://localhost/junudev/entrance-register/' );
+			wp_safe_redirect(get_permalink(get_option('entrance_registster_page')).'?woo=true');
 		}
 	}
 
@@ -67,6 +65,7 @@ class Entrance_Public {
 			add_shortcode( 'entrance_register', [$this,'entrance_register_callback_function']);
 		}
 		$this->entrance_social_login('');
+		add_filter ( 'woocommerce_account_menu_items', [$this,'entrance_my_profile'], 40 );
 	}
 
 	/**
@@ -76,10 +75,6 @@ class Entrance_Public {
 	 */
 	public function enqueue_styles() {
 		global $wp_query;
-		if(isset( $wp_query->query_vars['my_pets'] )){
-			wp_enqueue_style( 'dataTable', plugin_dir_url( __FILE__ ) . 'css/dataTable.css', array(), '', 'all' );
-		}
-		wp_enqueue_style( 'fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css', array(), '', 'all' );
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/entrance-public.css', array(), microtime(), 'all' );
 
 	}
@@ -91,10 +86,6 @@ class Entrance_Public {
 	 */
 	public function enqueue_scripts() {
 		global $wp_query;
-		if(isset( $wp_query->query_vars['my_pets'] )){
-			wp_enqueue_script( 'dataTable', plugin_dir_url( __FILE__ ) . 'js/dataTable.js', array( 'jquery' ), '', true );
-			wp_enqueue_script( 'datatable-con', plugin_dir_url( __FILE__ ) . 'js/datatable-con.js', array( 'dataTable' ), '', true );
-		}
 		wp_enqueue_script( 'ajaxform', plugin_dir_url( __FILE__ ) . 'js/ajaxform.js', array( 'jquery' ), microtime(), true );
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/entrance-public.js', array( 'jquery' ), microtime(), true );
 		wp_localize_script($this->plugin_name, "submitform_ajaxurl", array(
@@ -102,6 +93,67 @@ class Entrance_Public {
 			'nonce' => wp_create_nonce('ajax-nonce'),
 		));
 
+	}
+
+
+	function entrance_my_profile( $items ) {
+		unset($items['dashboard']);
+		unset($items['orders']);
+		unset($items['downloads']);
+		unset($items['edit-account']);
+		unset($items['edit-address']);
+		unset($items['customer-logout']);
+
+		$items['edit-profile'] = __("Profile", "woocommerce");
+		$items['my-pets'] = __("Pets", "woocommerce");
+		$items['orders'] = __("Orders", "woocommerce");
+		
+		return $items;
+	}
+
+	function woo_after_myaccount_restrictions($woo){
+		$allowed_endpoints = [ 'orders', 'edit-profile', 'my-pets' ];
+	
+		if (preg_match( '%^my\-account(?:/([^/]+)|)/?$%', $woo->request, $requ ) && ( empty( $requ[1] ) || !in_array( $requ[1], $allowed_endpoints ) )
+		) {
+			if(!is_user_logged_in(  )){
+				wp_safe_redirect(get_permalink(get_option('entrance_login_page')));
+				exit;
+			}else{
+				wp_redirect( site_url('/my-account/edit-profile/') );
+				exit;
+			}
+		}
+	}
+
+	function entrance_woo_menus_endpoints() {
+		add_rewrite_endpoint( 'edit-profile', EP_PAGES );
+		add_rewrite_endpoint( 'my-pets', EP_PAGES );
+	}
+
+	function entrance_my_pets_endpoint_content() {
+		require_once plugin_dir_path( __FILE__ )."partials/entrance-my-pets.php";
+	}
+	function entrance_edit_profile_endpoint_content() {
+		require_once plugin_dir_path( __FILE__ )."partials/entrance-edit-profile.php";
+	}
+
+	function entrance_custom_orders_page($has_orders){
+		if($has_orders){
+			require_once plugin_dir_path( __FILE__ ).'partials/entrance_orders.php';
+		}else{
+			?>
+			<style>
+			body{
+				background: linear-gradient(1deg, #E22B6E, #FC6266) !important;
+			}
+			h1.entry-title {
+				display: none;
+			}
+			</style>
+			<?php
+			print_r("<h3 class='no-order-found'>No order placed.</h3>");
+		}
 	}
 	
 	function entrance_login_access($user_id){
@@ -245,20 +297,12 @@ class Entrance_Public {
 	 */
 	function entrance_register_callback_function(){
 		if(!is_user_logged_in(  )){
-			if(!isset($_SESSION['access_token'])){
-				if(!isset($_SESSION['faccess_token'])){
-					ob_start();
-					// Include front view
-					require_once plugin_dir_path( __FILE__ )."partials/entrance_register_page.php";
-					$output = ob_get_contents();
-					ob_get_clean();
-					return $output;
-				}else{
-					print_r("You are already Logged in!");
-				}
-			}else{
-				print_r("You are already Logged in!");
-			}
+			ob_start();
+			// Include front view
+			require_once plugin_dir_path( __FILE__ )."partials/entrance_register_page.php";
+			$output = ob_get_contents();
+			ob_get_clean();
+			return $output;
 		}else{
 			print_r("You are already Logged in!");
 		}
@@ -269,6 +313,9 @@ class Entrance_Public {
 		if(isset($_POST['login_btn'])){
 			if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['password']) && !empty($_POST['password'])){
 				$redirect = !empty(get_option( 'entrance_redirect_url' ))?get_option( 'entrance_redirect_url' ):get_home_url();
+                if(isset($_GET['woo'])){
+                    $redirect = get_home_url().'/checkout';
+                } 
 
 				$username = sanitize_text_field( $_POST['username'] );
 				$password = sanitize_text_field( $_POST['password'] );
@@ -299,6 +346,277 @@ class Entrance_Public {
 				return 'Invalid credentials.';
 			}
 		}
+	}
+
+	function entrance_get_country_name_by_code( $country_code ) {
+		$countries = array(
+			'AX' => 'Åland Islands',
+			'AF' => 'Afghanistan',
+			'AL' => 'Albania',
+			'DZ' => 'Algeria',
+			'AD' => 'Andorra',
+			'AO' => 'Angola',
+			'AI' => 'Anguilla',
+			'AQ' => 'Antarctica',
+			'AG' => 'Antigua and Barbuda',
+			'AR' => 'Argentina',
+			'AM' => 'Armenia',
+			'AW' => 'Aruba',
+			'AU' => 'Australia',
+			'AT' => 'Austria',
+			'AZ' => 'Azerbaijan',
+			'BS' => 'Bahamas',
+			'BH' => 'Bahrain',
+			'BD' => 'Bangladesh',
+			'BB' => 'Barbados',
+			'BY' => 'Belarus',
+			'PW' => 'Belau',
+			'BE' => 'Belgium',
+			'BZ' => 'Belize',
+			'BJ' => 'Benin',
+			'BM' => 'Bermuda',
+			'BT' => 'Bhutan',
+			'BO' => 'Bolivia',
+			'BQ' => 'Bonaire, Saint Eustatius and Saba',
+			'BA' => 'Bosnia and Herzegovina',
+			'BW' => 'Botswana',
+			'BV' => 'Bouvet Island',
+			'BR' => 'Brazil',
+			'IO' => 'British Indian Ocean Territory',
+			'VG' => 'British Virgin Islands',
+			'BN' => 'Brunei',
+			'BG' => 'Bulgaria',
+			'BF' => 'Burkina Faso',
+			'BI' => 'Burundi',
+			'KH' => 'Cambodia',
+			'CM' => 'Cameroon',
+			'CA' => 'Canada',
+			'CV' => 'Cape Verde',
+			'KY' => 'Cayman Islands',
+			'CF' => 'Central African Republic',
+			'TD' => 'Chad',
+			'CL' => 'Chile',
+			'CN' => 'China',
+			'CX' => 'Christmas Island',
+			'CC' => 'Cocos (Keeling) Islands',
+			'CO' => 'Colombia',
+			'KM' => 'Comoros',
+			'CG' => 'Congo (Brazzaville)',
+			'CD' => 'Congo (Kinshasa)',
+			'CK' => 'Cook Islands',
+			'CR' => 'Costa Rica',
+			'HR' => 'Croatia',
+			'CU' => 'Cuba',
+			'CW' => 'CuraÇao',
+			'CY' => 'Cyprus',
+			'CZ' => 'Czech Republic',
+			'DK' => 'Denmark',
+			'DJ' => 'Djibouti',
+			'DM' => 'Dominica',
+			'DO' => 'Dominican Republic',
+			'EC' => 'Ecuador',
+			'EG' => 'Egypt',
+			'SV' => 'El Salvador',
+			'GQ' => 'Equatorial Guinea',
+			'ER' => 'Eritrea',
+			'EE' => 'Estonia',
+			'ET' => 'Ethiopia',
+			'FK' => 'Falkland Islands',
+			'FO' => 'Faroe Islands',
+			'FJ' => 'Fiji',
+			'FI' => 'Finland',
+			'FR' => 'France',
+			'GF' => 'French Guiana',
+			'PF' => 'French Polynesia',
+			'TF' => 'French Southern Territories',
+			'GA' => 'Gabon',
+			'GM' => 'Gambia',
+			'GE' => 'Georgia',
+			'DE' => 'Germany',
+			'GH' => 'Ghana',
+			'GI' => 'Gibraltar',
+			'GR' => 'Greece',
+			'GL' => 'Greenland',
+			'GD' => 'Grenada',
+			'GP' => 'Guadeloupe',
+			'GT' => 'Guatemala',
+			'GG' => 'Guernsey',
+			'GN' => 'Guinea',
+			'GW' => 'Guinea-Bissau',
+			'GY' => 'Guyana',
+			'HT' => 'Haiti',
+			'HM' => 'Heard Island and McDonald Islands',
+			'HN' => 'Honduras',
+			'HK' => 'Hong Kong',
+			'HU' => 'Hungary',
+			'IS' => 'Iceland',
+			'IN' => 'India',
+			'ID' => 'Indonesia',
+			'IR' => 'Iran',
+			'IQ' => 'Iraq',
+			'IM' => 'Isle of Man',
+			'IL' => 'Israel',
+			'IT' => 'Italy',
+			'CI' => 'Ivory Coast',
+			'JM' => 'Jamaica',
+			'JP' => 'Japan',
+			'JE' => 'Jersey',
+			'JO' => 'Jordan',
+			'KZ' => 'Kazakhstan',
+			'KE' => 'Kenya',
+			'KI' => 'Kiribati',
+			'KW' => 'Kuwait',
+			'KG' => 'Kyrgyzstan',
+			'LA' => 'Laos',
+			'LV' => 'Latvia',
+			'LB' => 'Lebanon',
+			'LS' => 'Lesotho',
+			'LR' => 'Liberia',
+			'LY' => 'Libya',
+			'LI' => 'Liechtenstein',
+			'LT' => 'Lithuania',
+			'LU' => 'Luxembourg',
+			'MO' => 'Macao S.A.R., China',
+			'MK' => 'Macedonia',
+			'MG' => 'Madagascar',
+			'MW' => 'Malawi',
+			'MY' => 'Malaysia',
+			'MV' => 'Maldives',
+			'ML' => 'Mali',
+			'MT' => 'Malta',
+			'MH' => 'Marshall Islands',
+			'MQ' => 'Martinique',
+			'MR' => 'Mauritania',
+			'MU' => 'Mauritius',
+			'YT' => 'Mayotte',
+			'MX' => 'Mexico',
+			'FM' => 'Micronesia',
+			'MD' => 'Moldova',
+			'MC' => 'Monaco',
+			'MN' => 'Mongolia',
+			'ME' => 'Montenegro',
+			'MS' => 'Montserrat',
+			'MA' => 'Morocco',
+			'MZ' => 'Mozambique',
+			'MM' => 'Myanmar',
+			'NA' => 'Namibia',
+			'NR' => 'Nauru',
+			'NP' => 'Nepal',
+			'NL' => 'Netherlands',
+			'AN' => 'Netherlands Antilles',
+			'NC' => 'New Caledonia',
+			'NZ' => 'New Zealand',
+			'NI' => 'Nicaragua',
+			'NE' => 'Niger',
+			'NG' => 'Nigeria',
+			'NU' => 'Niue',
+			'NF' => 'Norfolk Island',
+			'KP' => 'North Korea',
+			'NO' => 'Norway',
+			'OM' => 'Oman',
+			'PK' => 'Pakistan',
+			'PS' => 'Palestinian Territory',
+			'PA' => 'Panama',
+			'PG' => 'Papua New Guinea',
+			'PY' => 'Paraguay',
+			'PE' => 'Peru',
+			'PH' => 'Philippines',
+			'PN' => 'Pitcairn',
+			'PL' => 'Poland',
+			'PT' => 'Portugal',
+			'QA' => 'Qatar',
+			'IE' => 'Republic of Ireland',
+			'RE' => 'Reunion',
+			'RO' => 'Romania',
+			'RU' => 'Russia',
+			'RW' => 'Rwanda',
+			'ST' => 'São Tomé and Príncipe',
+			'BL' => 'Saint Barthélemy',
+			'SH' => 'Saint Helena',
+			'KN' => 'Saint Kitts and Nevis',
+			'LC' => 'Saint Lucia',
+			'SX' => 'Saint Martin (Dutch part)',
+			'MF' => 'Saint Martin (French part)',
+			'PM' => 'Saint Pierre and Miquelon',
+			'VC' => 'Saint Vincent and the Grenadines',
+			'SM' => 'San Marino',
+			'SA' => 'Saudi Arabia',
+			'SN' => 'Senegal',
+			'RS' => 'Serbia',
+			'SC' => 'Seychelles',
+			'SL' => 'Sierra Leone',
+			'SG' => 'Singapore',
+			'SK' => 'Slovakia',
+			'SI' => 'Slovenia',
+			'SB' => 'Solomon Islands',
+			'SO' => 'Somalia',
+			'ZA' => 'South Africa',
+			'GS' => 'South Georgia/Sandwich Islands',
+			'KR' => 'South Korea',
+			'SS' => 'South Sudan',
+			'ES' => 'Spain',
+			'LK' => 'Sri Lanka',
+			'SD' => 'Sudan',
+			'SR' => 'Suriname',
+			'SJ' => 'Svalbard and Jan Mayen',
+			'SZ' => 'Swaziland',
+			'SE' => 'Sweden',
+			'CH' => 'Switzerland',
+			'SY' => 'Syria',
+			'TW' => 'Taiwan',
+			'TJ' => 'Tajikistan',
+			'TZ' => 'Tanzania',
+			'TH' => 'Thailand',
+			'TL' => 'Timor-Leste',
+			'TG' => 'Togo',
+			'TK' => 'Tokelau',
+			'TO' => 'Tonga',
+			'TT' => 'Trinidad and Tobago',
+			'TN' => 'Tunisia',
+			'TR' => 'Turkey',
+			'TM' => 'Turkmenistan',
+			'TC' => 'Turks and Caicos Islands',
+			'TV' => 'Tuvalu',
+			'UG' => 'Uganda',
+			'UA' => 'Ukraine',
+			'AE' => 'United Arab Emirates',
+			'GB' => 'United Kingdom (UK)',
+			'US' => 'United States (US)',
+			'UY' => 'Uruguay',
+			'UZ' => 'Uzbekistan',
+			'VU' => 'Vanuatu',
+			'VA' => 'Vatican',
+			'VE' => 'Venezuela',
+			'VN' => 'Vietnam',
+			'WF' => 'Wallis and Futuna',
+			'EH' => 'Western Sahara',
+			'WS' => 'Western Samoa',
+			'YE' => 'Yemen',
+			'ZM' => 'Zambia',
+			'ZW' => 'Zimbabwe',
+		);
+		return ( isset( $countries[ $country_code ] ) ? $countries[ $country_code ] : false );
+	}
+
+
+	function entrance_get_mymail(){
+		if(!wp_verify_nonce( $_GET['nonce'], 'ajax-nonce' )){
+			die();
+		}
+
+		if(isset($_GET['email'])){
+			$email = sanitize_email( $_GET['email'] );
+			
+			$user = get_user_by("email", $email);
+			if($user){
+				echo json_encode(array('exist' => "This user already exist!"));
+				die;
+			}else{
+				echo json_encode(array('success' => "success"));
+				die;
+			}
+		}
+		die;
 	}
 
 	function entrance_registration_form_data_store(){
@@ -435,8 +753,10 @@ class Entrance_Public {
 					update_user_meta( $user_id, "billing_last_name", $yourdetails['lastname'] );
 					update_user_meta( $user_id, "last_name", $yourdetails['lastname'] );
 					update_user_meta( $user_id, "shipping_last_name", $yourdetails['lastname'] );
+					update_user_meta( $user_id, "billing_country", $yourdetails['country'] );
 					update_user_meta( $user_id, "billing_phone", $yourdetails['phone'] );
-					update_user_meta( $user_id, "shipping_country", $yourdetails['country'] );
+					update_user_meta( $user_id, "shipping_country", $this->entrance_get_country_name_by_code($yourdetails['country']) );
+					
 
 					if(!empty($shippingaddr)){
 						update_user_meta( $user_id, "shipping_address_1", $shippingaddr['addr_1'] );
@@ -483,5 +803,42 @@ class Entrance_Public {
 			die;
 		}
 		die;
+	}
+
+	function user_myaccount_add_pets(){
+		if(!wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' )){
+			die();
+		}
+		if(isset($_POST['data'])){
+			global $wpdb,$current_user;
+			$user_id = $current_user->ID;
+			$data = $_POST['data'];
+			if(is_user_logged_in(  )){
+				$pet_name 		= $data['petname'];
+				$petage 		= $data['petage'];
+				$birthday 		= $data['birthday'];
+				$breed 			= $data['breed'];
+				$gender 		= $data['gender'];
+				$inserted = $wpdb->insert($wpdb->prefix.'entrance_pets',array(
+					'user_id' 		=> $user_id, 
+					'pet_name' 		=> $pet_name,
+					'pet_age' 		=> $petage,
+					'pet_birthday' 	=> $birthday,
+					'pet_breed' 	=> $breed,
+					'pet_gender' 	=> $gender
+				),array('%d','%s','%d','%s','%s','%s'));
+
+				if($inserted){
+					echo wp_json_encode( array('success' => 'success') );
+					die;
+				}else{
+					echo wp_json_encode( array('error' => 'error') );
+					die;
+				}
+			}else{
+				die;
+			}
+			die;
+		}
 	}
 }

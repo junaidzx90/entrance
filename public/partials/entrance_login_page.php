@@ -13,8 +13,12 @@
  */
 global $pagebg,$formbg;
 ?>
-
-<div id="entranse_wrap" style="background: <?php echo $pagebg; ?> !important">
+<style>
+ body{
+    background: linear-gradient(1deg, #E22B6E, #FC6266) !important;
+ }
+</style>
+<div id="entranse_wrap">
     <div class="entrance_container">
         <div class="entrance_content">
             <div class="ent-form-contents" style="background: <?php echo $formbg; ?> !important">

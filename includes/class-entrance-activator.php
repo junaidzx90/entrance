@@ -50,7 +50,7 @@ class Entrance_Activator {
 			PRIMARY KEY (`ID`)) ENGINE = InnoDB";
 			dbDelta($entrance_breeds);
 
-		flush_rewrite_rules();
+		flush_rewrite_rules(true);
 	}
 
 }

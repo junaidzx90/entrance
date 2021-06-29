@@ -32,6 +32,7 @@ jQuery(function( $ ) {
 
 
 	let access = false;
+	let email_access = true;
 
 	$('.entranceform').children().find('input').on('keyup', function () {
 		if ($(this).val().length > 1) {
@@ -54,20 +55,23 @@ jQuery(function( $ ) {
 	});
 
 	function validate_data(id) {
-		if ($('.ent-password').val().length < 6) {
-			$('.ent-password').css('border-color', 'red');
-			access = false;
-		}
 		let inputs = $('#'+id).children().find('input,select');
 		inputs.each(function () {
 			if ($(this).val() == "" || $(this).val() == '-1') {
 				$(this).css('border-color', 'red');
 				access = false;
+				return false;
 			} else {
 				$(this).css('border-color', '#ddd');
 				access = true;
 			}
 		});
+
+		if ($('.ent-password').val().length < 6) {
+			$('.ent-password').css('border-color', 'red');
+			access = false;
+			return false;
+		}
 	}
 
 	function loading(time) {
@@ -77,13 +81,48 @@ jQuery(function( $ ) {
 		}, time);
 	}
 
+	$('#entemail').on("keyup", function () {
+		let email = $(this).val();
+
+		if (email.indexOf('@') != -1) {
+			$.ajax({
+				type: "get",
+				url: submitform_ajaxurl.ajaxurl,
+				data: {
+					action: "entrance_get_mymail",
+					nonce: submitform_ajaxurl.nonce,
+					email: email
+				},
+				dataType: "json",
+				success: function (response) {
+					if (response.success) {
+						email_access = true;
+						$('.reg-error').html("");
+						$('#entemail').css('border-color', '#ddd');
+					}
+					if (response.exist) {
+						email_access = false;
+						$('.reg-error').html('<div class="errors"><p><span class="error-icon">⊘</span>&nbsp;' + response.exist + '</p></div>');
+						$('#entemail').css('border-color', 'red');
+						return false;
+					}
+				}
+			});
+		}
+	});
+
 	$('.tbbtn').each(function () {
 		$(this).on("click", function () {
 			loading(500);
 			// Process data
 			validate_data($(this).prev().attr('data-name'));
+			if (email_access == false) {
+				$('#entemail').css('border-color', 'red');
+			} else {
+				$('#entemail').css('border-color', '#ddd');
+			}
 
-			if (access == true) {
+			if (access == true && email_access == true) {
 				$('.next-btn').text('NEXT');
 				$('.tbbtn').each(function () {
 					$(this).removeClass('ent-active');
@@ -115,8 +154,13 @@ jQuery(function( $ ) {
 		loading(500);
 		// Process data
 		validate_data(validate_data($(this).attr('data-name')));
+		if (email_access == false) {
+			$('#entemail').css('border-color', 'red');
+		} else {
+			$('#entemail').css('border-color', '#ddd');
+		}
 
-		if (access == true) {
+		if (access == true && email_access == true) {
 			$('.tabs').each(function () {
 				if (!$(this).hasClass('ent-none')) {
 				
@@ -225,10 +269,79 @@ jQuery(function( $ ) {
 	});
 
 	$(document).on("click",'.delete-item', function () {
-		let data = $(this).parent('.item').attr('data-it');
 		$('.pets_breadcrumbs').find('.active').remove();
 		$('.pets_breadcrumbs').children().last().addClass('active')
 		$(this).parent('.item').prev().show();
 		$(this).parent('.item').remove();
+	});
+	
+	$('.closewindow').on("click", function () {
+		$(this).parent().parent().hide();
+	});
+	$('.addpet').on("click", function () {
+		$('.petpopup').css("display","flex");
+	});
+	$('.addpetbtn').on("click", function () {
+		let btn = $(this)
+		let petname = $('.ent-petname').val();
+		let petage = $('.ent-petage').val();
+		let birthday = $('.ent-birthday').val();
+		let breed = $('#breed').val();
+		let gender = $('#gender').val();
+
+		if (petname != "") {
+			$('.ent-petname').css("border-color", "#ddd");
+			if (petage != "") {
+				$('.ent-petage').css("border-color", "#ddd");
+				if (birthday != "") {
+					$('.ent-birthday').css("border-color", "#ddd");
+					if (breed != "") {
+						$('#breed').css("border-color", "#ddd");
+						if (gender != "") {
+							$('#gender').css("border-color", "#ddd");
+
+							let data = {petname,petage,birthday,breed,gender}
+							// Rest of the code
+							// ================
+							$.ajax({
+								type: "post",
+								url: submitform_ajaxurl.ajaxurl,
+								data: {
+									action: "user_myaccount_add_pets",
+									nonce: submitform_ajaxurl.nonce,
+									data: data
+								},
+								beforeSend: () => {
+									btn.text("ADDING...")
+									$('.loading2').css('visibility','visible')
+								},
+								dataType: "json",
+								success: function (response) {
+									btn.text("ADD")
+									if (response.success) {
+										var url = window.location.href;
+                    					$('body').load(url);
+									}
+									if (response.error) {
+										alert("Try again!");
+									}
+								}
+							});
+							
+						} else {
+							$('#gender').css("border-color", "red");
+						}
+					} else {
+						$('#breed').css("border-color", "red");
+					}
+				} else {
+					$('.ent-birthday').css("border-color", "red");
+				}
+			} else {
+				$('.ent-petage').css("border-color", "red");
+			}
+		} else {
+			$('.ent-petname').css("border-color", "red");
+		}
 	});
 });

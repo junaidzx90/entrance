@@ -32,3 +32,8 @@ button.button.button-danger:hover,button.button.button-danger:focus {
     border-color: #ff7070;
     box-shadow: 0 0 0 1px #ff7070;
 }
+.pets_details-info{
+    margin-top: 20px;
+}
+#pets-details tr:nth-child(even){background-color: #f2f2f2;}
+#pets-details tr:hover {background-color: #ddd;}

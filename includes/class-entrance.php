@@ -70,7 +70,7 @@ class Entrance {
 		if ( defined( 'ENTRANCE_VERSION' ) ) {
 			$this->version = ENTRANCE_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
 		$this->plugin_name = 'entrance';
 
@@ -158,11 +158,6 @@ class Entrance {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'entrance_menu_page' );
 		$this->loader->add_action( 'wp_logout', $plugin_admin, 'entrance_logout_page' );
-
-		$this->loader->add_action( 'init', $plugin_admin, 'entrance_woo_menus_endpoints' );
-		$this->loader->add_action( 'woocommerce_account_my_profile_endpoint', $plugin_admin, 'entrance_my_profile_endpoint_content' );
-		$this->loader->add_action( 'woocommerce_account_my_pets_endpoint', $plugin_admin, 'entrance_my_pets_endpoint_content' );
-		$this->loader->add_action( 'woocommerce_account_pets_endpoint', $plugin_admin, 'entrance_pets_endpoint_content' );
 	}
 
 	/**
@@ -176,13 +171,23 @@ class Entrance {
 
 		$plugin_public = new Entrance_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles',99 );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'init', $plugin_public, 'public_filters' );
 
 		$this->loader->add_action("wp_ajax_entrance_registration_form_data_store", $plugin_public, "entrance_registration_form_data_store");
 		$this->loader->add_action("wp_ajax_nopriv_entrance_registration_form_data_store", $plugin_public, "entrance_registration_form_data_store");
 
+		$this->loader->add_action("wp_ajax_user_myaccount_add_pets", $plugin_public, "user_myaccount_add_pets");
+		$this->loader->add_action("wp_ajax_nopriv_user_myaccount_add_pets", $plugin_public, "user_myaccount_add_pets");
+
+		$this->loader->add_action("wp_ajax_entrance_get_mymail", $plugin_public, "entrance_get_mymail");
+		$this->loader->add_action("wp_ajax_nopriv_entrance_get_mymail", $plugin_public, "entrance_get_mymail");
+		$this->loader->add_action( 'woocommerce_checkout_before_customer_details', $plugin_public,'checkout_redirect_tologin' );
+		$this->loader->add_action( 'woocommerce_after_account_orders', $plugin_public,'entrance_custom_orders_page', 99, 1 );
+		$this->loader->add_action('parse_request', $plugin_public,'woo_after_myaccount_restrictions');
+		$this->loader->add_action( 'init', $plugin_public, 'entrance_woo_menus_endpoints' );$this->loader->add_action( 'woocommerce_account_edit-profile_endpoint', $plugin_public, 'entrance_edit_profile_endpoint_content' );
+		$this->loader->add_action( 'woocommerce_account_my-pets_endpoint', $plugin_public, 'entrance_my_pets_endpoint_content' );
 	}
 
 	/**
